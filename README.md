@@ -4,14 +4,14 @@ This repository contains quick introduction to frontend framework integrations, 
 
 ## Examples of Integration
 
-Below is a list of our frontend integrations. If an integration is listed but not linked, its corresponding article is still in production. Once published, we will update this list with a link and add a sample application to the integrations[./integrations] directory.
+Below is a list of our frontend integrations. If an integration is listed but not linked, its corresponding article is still in production. Once published, we will update this list with a link and add a sample application to the [integrations](./integrations)q directory.
 
 - Angular
 - Next.js
 - React.js
 - Sveltekit
 - Vanilla JavaScript
-- Vue.js
+- [Vue.js](./integrations/vuejs)
 
 ## Did we miss your framework?
 
