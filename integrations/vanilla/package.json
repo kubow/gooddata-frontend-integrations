@@ -1,0 +1,30 @@
+{
+  "name": "vanilla",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "refresh-md": "gdc-catalog-export",
+    "build": "npx webpack --config webpack.config.js"
+  },
+  "author": "Patrik Braborec",
+  "devDependencies": {
+    "@gooddata/catalog-export": "^9.7.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@gooddata/api-client-tiger": "^9.3.0",
+    "@gooddata/sdk-backend-tiger": "^9.7.0",
+    "@gooddata/sdk-ui-all": "^9.7.0",
+    "chart.js": "^4.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "gooddata": {
+    "hostname": "https://flawless-turtle.trial.cloud.gooddata.com/",
+    "workspaceId": "gdc_demo_68b22536-04ee-4e31-bbb4-9561ac6f15e7",
+    "catalogOutput": "src/export.js",
+    "backend": "tiger"
+  }
+}
