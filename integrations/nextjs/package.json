@@ -9,21 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@gooddata/api-client-tiger": "^9.3.0",
-    "@gooddata/sdk-backend-tiger": "^9.6.0",
-    "@gooddata/sdk-ui-all": "^9.6.0",
-    "next": "^14.0.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@gooddata/api-client-tiger": "^10.37.0",
+    "@gooddata/sdk-backend-tiger": "^10.37.0",
+    "@gooddata/sdk-ui-all": "^10.37.0",
+    "next": "^14.2.31",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@gooddata/catalog-export": "^9.4.0",
-    "@types/react": "^18.2.53",
-    "@types/react-dom": "^18.2.18",
+    "@gooddata/catalog-export": "^10.37.0",
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
     "autoprefixer": "^10.0.1",
-    "eslint": "^8",
+    "eslint": "^8.57.1",
     "eslint-config-next": "14.0.3",
     "postcss": "^8",
-    "tailwindcss": "^3.3.0"
+    "tailwindcss": "^3.4.17"
   }
 }
