@@ -9,17 +9,17 @@
   },
   "author": "Patrik Braborec",
   "devDependencies": {
-    "@gooddata/catalog-export": "^9.7.0",
+    "@gooddata/catalog-export": "^10.37.0",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@gooddata/api-client-tiger": "^9.3.0",
-    "@gooddata/sdk-backend-tiger": "^9.7.0",
-    "@gooddata/sdk-ui-all": "^9.7.0",
+    "@gooddata/api-client-tiger": "^10.37.0",
+    "@gooddata/sdk-backend-tiger": "^10.37.0",
+    "@gooddata/sdk-ui-all": "^10.37.0",
     "chart.js": "^4.4.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "gooddata": {
     "hostname": "https://flawless-turtle.trial.cloud.gooddata.com/",
