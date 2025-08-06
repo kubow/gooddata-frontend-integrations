@@ -3,14 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@gooddata/api-client-tiger": "^9.3.0",
-    "@gooddata/sdk-backend-tiger": "^9.6.0",
-    "@gooddata/sdk-ui-all": "^9.6.0",
+    "@gooddata/api-client-tiger": "^10.37.0",
+    "@gooddata/sdk-backend-tiger": "^10.37.0",
+    "@gooddata/sdk-ui-all": "^10.37.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -40,7 +40,7 @@
     ]
   },
   "devDependencies": {
-    "@gooddata/catalog-export": "^9.4.0"
+    "@gooddata/catalog-export": "^10.37.0"
   },
   "gooddata": {
     "hostname": "https://odd-bobcat.trial.cloud.gooddata.com",
