@@ -1,131 +1,134 @@
-# Next.js
+# Next.js 15 + React 19 with GoodData
 
-Integrating GoodData into Next.js is easier than it seems, even without native support. Let’s dive in and go over the four step process:
+This is a [Next.js](https://nextjs.org) v16 project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app), integrated with GoodData for data visualization.
 
-1. Installing Dependencies
-1. Setting up Environment Variables
-1. Setting up the Code Base
-1. Managing CORS
+## Tech Stack
 
+- **Next.js 16** (App Router)
+- **React 19**
+- **TypeScript**
+- **Tailwind CSS v4**
+- **GoodData SDK** (`@gooddata/sdk-backend-tiger`, `@gooddata/sdk-ui-*`)
 
-# Step 1: Dependencies
+![screenshot](./screen.png)
 
-First things first, you would need to add a few things to your dependencies.
+## Getting Started
 
-There's not much to comment here, so here are the needed dependencies:
-
-```bash
-npm install --save react@^18.2.0 react-dom@^18.2.0 @gooddata/sdk-ui-all @gooddata/sdk-backend-tiger
-```
-
-As I'd like this article to be as concise as possible - less time reading = more time coding - I won't go into the dirty details about the dependencies, but if you would like to learn more about them, here is the [GoodData.UI architecture overview](https://www.gooddata.com/docs/gooddata-ui/latest/architecture/architecture_overview/).
-
-
-And just for the completeness here are the TypeScript dependencies:
+### Step 1: Install Dependencies
 
 ```bash
-npm install --save-dev @types/react@^18.2.0 @types/react-dom@^18.2.0
+npm install
 ```
 
-Now that is out of the way, let's look at the code!
+### Step 2: Set Environment Variables
 
-## Step 2: Set environment variables
-Make sure you have your [.env](./.env) and [.env.local](./.env.local.template) files with correct values. After you clone the repository, you will see a [.env.local.template](./.env.local.template) file in the /clients/next.js folder. You need to remove “template” from the filename in order to set up everything correctly.
+1. Copy the environment template:
+   ```bash
+   cp .env.local.template .env.local
+   ```
 
-For .env, you will need to define four variables:
-```
-# GoodData host
-NEXT_PUBLIC_HOSTNAME=""
+2. Edit `.env` with your GoodData configuration:
+   ```
+   NEXT_PUBLIC_GD_HOSTNAME="https://your-org.cloud.gooddata.com"
+   NEXT_PUBLIC_GD_WORKSPACE_ID="your-workspace-id"
+   NEXT_PUBLIC_GD_INSIGHT_ID="your-insight-id"
+   ```
 
-# GoodData workspace id
+3. Edit `.env.local` with your API token:
+   ```
+   NEXT_PUBLIC_GD_API_TOKEN="your-api-token"
+   ```
 
-NEXT_PUBLIC_WORKSPACE_ID=""
+#### Finding Your Configuration Values
 
+- **HOSTNAME & WORKSPACE_ID**: Open a GoodData dashboard and find them in the URL:
+  ```
+  https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/dashboard/<DASHBOARD_ID>
+  ```
 
-# GoodData insight id
+- **INSIGHT_ID**: Navigate to the Analyze tab and open a visualization:
+  ```
+  https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/<INSIGHT_ID>/edit
+  ```
 
-NEXT_PUBLIC_INSIGHT_ID=""
-```
+- **API_TOKEN**: See [Create an API token](https://www.gooddata.com/developers/cloud-native/doc/cloud/getting-started/create-api-token/) documentation.
 
-If you open a GoodData dashboard, you can find the HOSTNAME and WORKSPACE_ID in the URL:
+> ⚠️ **Security Note**: For production deployments, use OAuth instead of API tokens to avoid leaking credentials.
 
-`https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/dashboard/<DASHBOARD_ID>`
+### Step 3: Configure CORS
 
-For INSIGHT_ID you will have to navigate to the Analyze tab and then navigate to one of the visualizations. There you would find INSIGHT_ID like this:
+1. Navigate to your GoodData instance
+2. Go to Settings
+3. Add your development origin (e.g., `http://localhost:3000`) to allowed CORS origins
 
-`https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/<INSIGHT_ID>/edit`
+For detailed CORS configuration, see the [official documentation](https://www.gooddata.com/docs/cloud/manage-organization/set-up-cors-for-organization/).
 
-For .env.local, you will need only one variable:
+### Step 4: Run the Development Server
 
-```
-# GoodData API token
-NEXT_PUBLIC_GD_API_TOKEN=""
-```
-Check [Create an API token](https://www.gooddata.com/developers/cloud-native/doc/cloud/getting-started/create-api-token/) documentation for more information.
-
-In case you would like to use this in your production, we highly recommend to use OAuth, as you could potentially leak your API_TOKEN.
-
-## Step 3: Set up the Code
-
-To quickly embed GoodData Visualizations, you would need to create a backend in the form of `tigerFactory()`:
-
-```typescript
-const backend = tigerFactory()
-  .onHostname( process.env.NEXT_PUBLIC_GD_HOSTNAME )
-  .withAuthentication(
-    new TigerTokenAuthProvider( process.env.NEXT_PUBLIC_GD_API_TOKEN )
-  );
-```
-
-Then just simply export it with the `GoodDataChart` component:
-
-```typescript
-export default function GoodDataChart() {
-    return (
-        <BackendProvider backend={backend} >
-        <div className="gooddata-chart">
-        <WorkspaceProvider workspace= { process.env.NEXT_PUBLIC_GD_WORKSPACE_ID } >
-        <InsightView insight= { process.env.NEXT_PUBLIC_GD_INSIGHT_ID } />
-    </WorkspaceProvider>
-    </div>
-    </BackendProvider>
-);
-}
+```bash
+npm run dev
 ```
 
-Now you can simply have a `<GoodDataChart/>` and it would render the Visualization!
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Here is a simple template:
+## Project Structure
 
-```html
-<template>
- <main>
-   <h1>Next.js with GoodData</h1>
-   <GoodDataChart />
- </main>
-</template>
 ```
-Now you can just add styling and you are set! Just for simplicity, let's just go with a minimal one:
-
-```html
-<style scoped>
-#gooddata-chart {
- width: 100%;
- height: 400px;
-}
-</style>
+src/
+├── app/
+│   ├── components/
+│   │   └── GoodDataChart.tsx    # GoodData visualization component
+│   ├── globals.css              # Global styles + GoodData CSS imports
+│   ├── layout.tsx               # Root layout with GoodData styles
+│   └── page.tsx                 # Main page with fruit store demo
 ```
 
-Here is a GitHub repo you can easily start with!
+## GoodData Integration
 
-## Step 4: Manage CORS
-And that is all for code! Quite simple, isn't it? ;)
+The integration follows these key steps:
 
-Now the only thing that would be missing is to take care of CORS. This is quite simple in GoodData:
-1. Navigate to your GoodData Instance,
-1. Go to the settings
-1. Add allowed origins to the CORS.
+1. **Backend Setup**: Create a Tiger backend with authentication:
+   ```typescript
+   const backend = tigerFactory()
+     .onHostname(process.env.NEXT_PUBLIC_GD_HOSTNAME!)
+     .withAuthentication(
+       new TigerTokenAuthProvider(process.env.NEXT_PUBLIC_GD_API_TOKEN!)
+     );
+   ```
 
-Note: For detailed information about CORS, refer to the [official documentation](https://www.gooddata.com/docs/cloud/manage-organization/set-up-cors-for-organization/).
+2. **Provider Wrapping**: Wrap components with `BackendProvider` and `WorkspaceProvider`:
+   ```typescript
+   <BackendProvider backend={backend}>
+     <WorkspaceProvider workspace={process.env.NEXT_PUBLIC_GD_WORKSPACE_ID!}>
+       <InsightView insight={process.env.NEXT_PUBLIC_GD_INSIGHT_ID!} />
+     </WorkspaceProvider>
+   </BackendProvider>
+   ```
 
-And that is it! If you would like to have a backend to try this against, use our [free trial](https://www.gooddata.com/trial/).
+3. **Client-Side Rendering**: Use `"use client"` directive for GoodData components.
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+## Catalog Export (Optional)
+
+Generate TypeScript representations of your GoodData workspace objects:
+
+```bash
+npx @gooddata/catalog-export --hostname <your-hostname> --workspace-id <your-workspace-id> --output src/catalog.ts
+```
+
+## Learn More
+
+- [GoodData.UI Documentation](https://www.gooddata.com/docs/gooddata-ui/latest/)
+- [GoodData.UI Architecture Overview](https://www.gooddata.com/docs/gooddata-ui/latest/architecture/architecture_overview/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [React 19 Documentation](https://react.dev)
+
+## Free Trial
+
+If you need a GoodData backend to test against, use the [free trial](https://www.gooddata.com/trial/).
