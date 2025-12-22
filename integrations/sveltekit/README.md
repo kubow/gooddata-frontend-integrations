@@ -1,134 +1,153 @@
-# SvelteKit
+# SvelteKit 5 GoodData Integration
 
-Integrating GoodData into SvelteKit is easier than it seems, even without native support. Let’s dive in and go over the four step process:
+A SvelteKit project featuring **Svelte 5 runes syntax** and GoodData frontend integration.
 
-1. Installing Dependencies
-1. Setting up Environment Variables
-1. Setting up the Code Base
-1. Managing CORS
+## [Created](https://svelte.dev/docs/kit/creating-a-project) with `npx sv create sveltekit --template minimal --types ts`.
 
+---
 
-# Step 1: Dependencies
+## Quick Start (This Project)
 
-First things first, you would need to add a few things to your dependencies.
-
-There's not much to comment here, so here are the needed dependencies:
+All dependencies are already configured in `package.json`. Just run:
 
 ```bash
-npm install --save react@^18.2.0 react-dom@^18.2.0 @gooddata/sdk-ui-all @gooddata/sdk-backend-tiger
+npm install
+cp .env.example .env   # Edit with your GoodData credentials
+npm run dev
+npm run build
+npm run preview
 ```
 
-As I'd like this article to be as concise as possible - less time reading = more time coding - I won't go into the dirty details about the dependencies, but if you would like to learn more about them, here is the [GoodData.UI architecture overview](https://www.gooddata.com/docs/gooddata-ui/latest/architecture/architecture_overview/).
+---
 
+## Integration Steps (New Project)
 
-And just for the completeness here are the TypeScript dependencies:
+> These steps are for integrating GoodData into a **new** SvelteKit project from scratch.  
+> If using this project, skip to [Step 3](#step-3-configure-environment-variables) — dependencies and code are already set up.
+
+### Step 1: Install Dependencies
+
+After scaffolding a new SvelteKit project, add React and GoodData SDK:
 
 ```bash
-npm install --save-dev @types/react@^18.2.0 @types/react-dom@^18.2.0
+npm install react react-dom @gooddata/sdk-ui-all @gooddata/sdk-backend-tiger @gooddata/sdk-ui-ext
+npm install -D @types/react @types/react-dom
 ```
 
-Now that is out of the way, let's look at the code!
+For more details, see the [GoodData.UI Architecture Overview](https://www.gooddata.com/docs/gooddata-ui/latest/architecture/architecture_overview/).
 
-## Step 2: Set environment variables
-Make sure you have your [.env](./.env) and [.env.local](./.env.local.template) files with correct values. After you clone the repository, you will see a [.env.local.template](./.env.local.template) file in the /clients/sveltekit folder. You need to remove “template” from the filename in order to set up everything correctly.
+### Step 2: Set Up the Code
 
-For .env, you will need to define four variables:
-```
-# GoodData host
-VITE_HOSTNAME=
+Create a wrapper component that mounts React's GoodData `InsightView` into a Svelte component.
 
-# GoodData workspace id
-
-VITE_WORKSPACE_ID=
-
-
-# GoodData insight id
-
-VITE_INSIGHT_ID=
-```
-
-If you open a GoodData dashboard, you can find the HOSTNAME and WORKSPACE_ID in the URL:
-
-`https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/dashboard/<DASHBOARD_ID>`
-
-For INSIGHT_ID you will have to navigate to the Analyze tab and then navigate to one of the visualizations. There you would find INSIGHT_ID like this:
-
-`https://<HOSTNAME>/dashboards/#/workspace/<WORKSPACE_ID>/<INSIGHT_ID>/edit`
-
-For .env.local, you will need only one variable:
-
-```
-# GoodData API token
-VITE_GD_API_TOKEN=
-```
-Check [Create an API token](https://www.gooddata.com/developers/cloud-native/doc/cloud/getting-started/create-api-token/) documentation for more information.
-
-In case you would like to use this in your production, we highly recommend to use OAuth, as you could potentially leak your API_TOKEN.
-
-## Step 3: Set up the Code
-
-To quickly embed GoodData Visualizations, you would need to create a backend in the form of `tigerFactory()`:
+The key pattern: use Svelte 5's `$effect()` to mount React on init and return a cleanup function to unmount on destroy.
 
 ```typescript
+// src/lib/GoodDataChart.svelte
+<script lang="ts">
+import * as React from 'react';
+import * as ReactDOM from 'react-dom/client';
+import tigerFactory, { TigerTokenAuthProvider } from '@gooddata/sdk-backend-tiger';
+
 const backend = tigerFactory()
-.onHostname(import.meta.env.VITE_HOSTNAME)
-.withAuthentication(
-new TigerTokenAuthProvider(import.meta.env.VITE_GD_API_TOKEN)
-)
-```
+    .onHostname(import.meta.env.VITE_HOSTNAME)
+    .withAuthentication(new TigerTokenAuthProvider(import.meta.env.VITE_GD_API_TOKEN));
 
-And then just simply feed it with the `onMounted()` method:
+let reactRoot: ReactDOM.Root | null = null;
 
-```typescript
-onMount(async () => {
-    const { InsightView } = await import('@gooddata/sdk-ui-ext');
-    const node = document.getElementById('gooddata-chart');
-    const props = {
-        workspace: import.meta.env.VITE_WORKSPACE_ID,
-        insight: import.meta.env.VITE_INSIGHT_ID,
-        backend
+// Svelte 5: $effect() replaces onMount()
+$effect(() => {
+    if (reactRoot) return; // Guard against re-runs
+
+    const mount = async () => {
+        const { InsightView } = await import('@gooddata/sdk-ui-ext');
+        const container = document.getElementById('gooddata-chart');
+        if (container) {
+            reactRoot = ReactDOM.createRoot(container);
+            reactRoot.render(React.createElement(InsightView, {
+                workspace: import.meta.env.VITE_WORKSPACE_ID,
+                insight: import.meta.env.VITE_INSIGHT_ID,
+                backend
+            }));
+        }
     };
+    mount();
 
-    if (node) {
-        ReactDOM.render(React.createElement(InsightView, props), node);
-    }
+    // Cleanup on component destroy
+    return () => {
+        reactRoot?.unmount();
+        reactRoot = null;
+    };
 });
+</script>
+
+<div id="gooddata-chart"></div>
 ```
 
-Now you can simply have a <div> with gooddata-chart id and it would render the Visualization!
+See [`src/lib/GoodDataChart.svelte`](./src/lib/GoodDataChart.svelte) for the full implementation.
 
-Here is a simple template:
+### Step 3: Configure Environment Variables
 
-```html
-<template>
- <main>
-   <h1>SvelteKit with GoodData</h1>
-   <div id="gooddata-chart"></div>
- </main>
-</template>
-```
-Now you can just add styling and you are set! Just for simplicity, let's just go with a minimal one:
+Create a `.env` file from the template:
 
-```html
-<style scoped>
-#gooddata-chart {
- width: 100%;
- height: 400px;
-}
-</style>
+```bash
+cp .env.example .env
 ```
 
+Required variables:
 
-Here is a GitHub repo you can easily start with!
+| Variable | Description | Where to Find |
+|----------|-------------|---------------|
+| `VITE_HOSTNAME` | GoodData host URL | `https://<HOSTNAME>/dashboards/...` |
+| `VITE_WORKSPACE_ID` | Workspace identifier | URL: `/workspace/<WORKSPACE_ID>/...` |
+| `VITE_INSIGHT_ID` | Visualization identifier | Analyze tab URL: `/<INSIGHT_ID>/edit` |
+| `VITE_GD_API_TOKEN` | API authentication token | [Create an API Token](https://www.gooddata.com/developers/cloud-native/doc/cloud/getting-started/create-api-token/) |
 
-## Step 4: Manage CORS
-And that is all for code! Quite simple, isn't it? ;)
+> **Security Note:** For production, use OAuth instead of API tokens to avoid credential exposure.
 
-Now the only thing that would be missing is to take care of CORS. This is quite simple in GoodData:
-1. Navigate to your GoodData Instance,
-1. Go to the settings
-1. Add allowed origins to the CORS.
+### Step 4: Configure CORS
 
-Note: For detailed information about CORS, refer to the [official documentation](https://www.gooddata.com/docs/cloud/manage-organization/set-up-cors-for-organization/).
+Add your application's origin to GoodData's allowed CORS origins:
 
-And that is it! If you would like to have a backend to try this against, use our [free trial](https://www.gooddata.com/trial/).
+1. Navigate to your GoodData instance
+2. Go to **Settings**
+3. Add your dev/prod URLs to **Allowed Origins**
+
+See [CORS Documentation](https://www.gooddata.com/docs/cloud/manage-organization/set-up-cors-for-organization/) for details.
+
+---
+
+## Project Structure
+
+```
+src/
+├── app.d.ts              # Type definitions (includes env var types)
+├── app.html              # HTML template
+├── lib/
+│   ├── index.ts          # Library exports
+│   └── GoodDataChart.svelte  # GoodData chart component
+└── routes/
+    ├── +layout.svelte    # Layout component
+    └── +page.svelte      # Main page
+```
+
+## Svelte 5 Features Used
+
+This project uses modern Svelte 5 runes syntax:
+
+| Svelte 5 | Replaces | Purpose |
+|----------|----------|---------|
+| `$state()` | `let` reactive | Reactive state declarations |
+| `$props()` | `export let` | Component props |
+| `$effect()` | `onMount` | Side effects & lifecycle |
+| `{@render children()}` | `<slot>` | Render child content |
+| `Snippet` type | — | Typed children props |
+
+See [Svelte 5 Migration Guide](https://svelte.dev/docs/svelte/v5-migration-guide) for more details.
+
+## Learn More
+
+- [SvelteKit Documentation](https://svelte.dev/docs/kit)
+- [Svelte 5 Runes](https://svelte.dev/docs/svelte/what-are-runes)
+- [GoodData.UI Documentation](https://www.gooddata.com/docs/gooddata-ui/latest/)
+- [GoodData Free Trial](https://www.gooddata.com/trial/)

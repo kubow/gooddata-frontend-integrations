@@ -1,146 +1,187 @@
 <script lang="ts">
-import GoodDataChart from "../GoodDataChart.svelte";
+	import GoodDataChart from '$lib/GoodDataChart.svelte';
+
+	// Svelte 5: using $state() for reactive state
+	interface Product {
+		name: string;
+		image: string;
+		description: string;
+	}
+
+	let products = $state<Product[]>([
+		{
+			name: 'Apples',
+			image: '/apples.jpeg',
+			description: 'Ideal for baking a delicious pie!'
+		},
+		{
+			name: 'Pears',
+			image: '/pears.jpeg',
+			description: 'Ideal for smoothies!'
+		},
+		{
+			name: 'Bananas',
+			image: '/bananas.jpeg',
+			description: 'Get your daily dose of potassium!'
+		}
+	]);
+
+	let navLinks = $state([
+		{ href: '#home', label: 'Home' },
+		{ href: '#products', label: 'Products' },
+		{ href: '#about', label: 'About' },
+		{ href: '#contact', label: 'Contact' }
+	]);
 </script>
 
-<div id="app">
-    <header class="site-header">
-        <h1>My Fruit Store</h1>
-        <nav>
-            <a href="#home" class="nav-link">Home</a>
-            <a href="#products" class="nav-link">Products</a>
-            <a href="#about" class="nav-link">About</a>
-            <a href="#contact" class="nav-link">Contact</a>
-        </nav>
-    </header>
-    <main>
-        <section class="products">
-            <h2>Todays Fruits</h2>
-            <div class="product-list">
-                <div class="product-item">
-                    <img src="/apples.jpeg" alt="Apples">
-                    <h3>Apples</h3>
-                    <p>Ideal for baking a delicious pie!</p>
-                </div>
-                <div class="product-item">
-                    <img src="/pears.jpeg" alt="Placeholder Image for Product 2">
-                    <h3>Pears</h3>
-                    <p>Ideal for smoothies!</p>
-                </div>
-                <div class="product-item">
-                    <img src="/bananas.jpeg" alt="Placeholder Image for Product 3">
-                    <h3>Bananas</h3>
-                    <p>Get your daily dose of potassium!</p>
-                </div>
-            </div>
-        </section>
-        <section class="data-visualization">
-            <GoodDataChart />
-        </section>
-    </main>
+<header class="site-header">
+	<h1>My Fruit Store</h1>
+	<nav>
+		{#each navLinks as link}
+			<a href={link.href} class="nav-link">{link.label}</a>
+		{/each}
+	</nav>
+</header>
 
-    <footer>
-        <div>
-            I am a happy little Footer
-        </div>
-    </footer>
-</div>
+<main>
+	<section class="products">
+		<h2>Todays Fruits</h2>
+		<div class="product-list">
+			{#each products as product}
+				<div class="product-item">
+					<img src={product.image} alt={product.name} />
+					<h3>{product.name}</h3>
+					<p>{product.description}</p>
+				</div>
+			{/each}
+		</div>
+	</section>
 
-<style global>
-    :global(html) {
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f2f2f2;
-    }
+	<section class="data-visualization">
+		<GoodDataChart />
+	</section>
+</main>
 
-    #app {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        width: 100%
-    }
+<footer>
+	<div>I am a happy little Footer</div>
+</footer>
 
-    .site-header {
-        display: flex;
-        flex-direction: row;
-        background-color: #333;
-        color: white;
-        padding: 1em 2em;
-        width: 100%;
+<style>
+	.site-header {
+		display: flex;
+		flex-direction: row;
+		background-color: #333;
+		color: white;
+		padding: 1em 2em;
+		width: 100%;
+		box-sizing: border-box;
+	}
 
-    }
+	.site-header h1 {
+		margin: 0;
+	}
 
-    nav .nav-link {
-        color: white;
-        text-decoration: none;
-        margin: 0 1em;
-    }
+	nav {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: row;
+		margin: 0 2em;
+	}
 
-    nav {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: row;
-        margin: 2em;
-    }
+	nav .nav-link {
+		color: white;
+		text-decoration: none;
+		margin: 0 1em;
+		font-size: 1.1rem;
+	}
 
-    .products, .data-visualization {
-        margin: 1em;
-        padding: 1em;
-    }
+	nav .nav-link:hover {
+		text-decoration: underline;
+	}
 
-    footer {
-        background-color: #333;
-        text-align: center;
-        padding: 1em 0;
-        margin-top: auto;
-    }
+	.products,
+	.data-visualization {
+		margin: 1em;
+		padding: 1em;
+	}
 
+	.products h2 {
+		font-size: 1.8rem;
+		margin-bottom: 1rem;
+	}
 
-    /* Responsive styles */
-    @media (max-width: 899px) {
+	.product-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2rem;
+	}
 
-        .nav-link {
-            margin: 0.5em 0;
-        }
+	.product-item {
+		flex: 1;
+		min-width: 250px;
+		max-width: 350px;
+	}
 
-        .product-list {
-            flex-direction: column;
-            align-content: center;
-            width: 100%;
-            display: flex;
-        }
+	.product-item img {
+		width: 100%;
+		height: auto;
+		border-radius: 8px;
+		object-fit: cover;
+	}
 
-        .product-item {
-            margin-right: 0.5em;
-            align-self: center;
-            align-content: center;
-        }
-    }
+	.product-item h3 {
+		margin: 0.5rem 0;
+		font-size: 1.5rem;
+	}
 
-    @media (min-width: 900px) {
-        nav {
-            flex-direction: row;
-        }
+	.product-item p {
+		margin: 0;
+		font-size: 1.1rem;
+	}
 
-        .nav-link {
-            margin: 0.5em 0;
-        }
+	footer {
+		background-color: #333;
+		color: white;
+		text-align: center;
+		padding: 1em 0;
+		margin-top: auto;
+	}
 
-        .product-list {
-            flex-direction: row;
-            display: flex;
-            justify-content: space-between;
-        }
+	/* Responsive styles */
+	@media (max-width: 899px) {
+		.site-header {
+			flex-direction: column;
+			align-items: center;
+		}
 
-        .product-item {
-            width: 30%;
-            margin-right: 0.5em;
-            align-self: center;
-            align-content: center;
-            display:flex;
-            flex-direction: column;
-        }
-    }
+		nav {
+			margin: 1em 0;
+		}
 
+		.nav-link {
+			margin: 0.5em;
+		}
+
+		.product-list {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.product-item {
+			width: 100%;
+			max-width: 400px;
+		}
+	}
+
+	@media (min-width: 900px) {
+		.product-list {
+			flex-direction: row;
+			justify-content: flex-start;
+		}
+
+		.product-item {
+			width: 30%;
+		}
+	}
 </style>
