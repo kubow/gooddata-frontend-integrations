@@ -1,7 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, OnInit, OnChanges, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom/client';
 import invariant from 'invariant';
 import { IInsightViewProps } from '@gooddata/sdk-ui-all';
 import tigerFactory, {
@@ -21,9 +21,10 @@ const backend = tigerFactory()
   templateUrl: './chart.component.html',
   styleUrl: './chart.component.css',
 })
-export class ChartComponent {
+export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   public rootDomID: string;
+  private reactRoot: ReactDOM.Root | null = null;
 
   protected getRootDomNode() {
     const node = document.getElementById(this.rootDomID);
@@ -45,9 +46,16 @@ export class ChartComponent {
 
   protected render() {
     if (this.isMounted()) {
-      ReactDOM.render(
-        React.createElement(InsightView, this.getProps()),
-        this.getRootDomNode()
+      const container = this.getRootDomNode();
+      
+      // Create root if it doesn't exist
+      if (!this.reactRoot) {
+        this.reactRoot = ReactDOM.createRoot(container);
+      }
+      
+      // Render the React component
+      this.reactRoot.render(
+        React.createElement(InsightView, this.getProps())
       );
     }
   }
@@ -65,6 +73,9 @@ export class ChartComponent {
   }
 
   ngOnDestroy() {
-    // ReactDOM.unmountComponentAtNode(this.getRootDomNode())
+    if (this.reactRoot) {
+      this.reactRoot.unmount();
+      this.reactRoot = null;
+    }
   }
 }
